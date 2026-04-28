@@ -5,3 +5,4 @@ results/
 
 # Optional: ignore heavy processed outputs
 # data/processed/
+data/processed/text_model.joblib
