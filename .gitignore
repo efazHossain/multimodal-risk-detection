@@ -21,3 +21,7 @@ data/processed/*.parquet
 
 # Outputs
 results/
+
+# Generated processed data/artifacts
+data/processed/*
+!data/processed/.gitkeep
