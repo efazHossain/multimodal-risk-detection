@@ -25,3 +25,4 @@ results/
 # Generated processed data/artifacts
 data/processed/*
 !data/processed/.gitkeep
+data/processed/test.png
