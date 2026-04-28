@@ -160,10 +160,32 @@ This enables actionable insights rather than black-box predictions.
 
 ### Run locally:
 ```bash
+spython -m venv .venv
 source .venv/bin/activate
+pip install -r requirements.txt
 streamlit run app/streamlit_app.py
 ```
+---
 
+## Business Impact
+
+This model is designed to help a retention team prioritize outreach by ranking customers based on churn probability. Instead of treating all customers equally, the business can focus retention campaigns on the highest-risk segments.
+
+Potential use cases:
+- Identify high-risk month-to-month customers
+- Estimate revenue at risk from likely churners
+- Prioritize outreach under a limited retention budget
+- Use SHAP explanations to personalize retention offers
+
+## Recommended Retention Actions
+
+| Churn Driver | Business Interpretation | Suggested Action |
+|---|---|---|
+| Low tenure | New customers may not be fully committed | Onboarding campaign |
+| Month-to-month contract | Easier cancellation path | Discount for annual contract |
+| High monthly charges | Price sensitivity | Bundle or loyalty discount |
+| No tech support | Support friction | Proactive service outreach |
+| Electronic check | Billing/payment friction | Promote autopay alternatives |
 ---
 
 ## Future Plans
