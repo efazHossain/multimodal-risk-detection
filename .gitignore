@@ -1,5 +1,7 @@
 .venv/
 __pycache__/
 .ipynb_checkpoints/
-data/processed/
 results/
+
+# Optional: ignore heavy processed outputs
+# data/processed/
