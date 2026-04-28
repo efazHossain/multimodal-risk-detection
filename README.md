@@ -158,13 +158,14 @@ SQL files are located in the `sql/` directory.
 
 ## 📈 Results
 
-| Model | ROC-AUC | PR-AUC |
-|-----|--------|--------|
-| Logistic Regression | **0.846** | **0.650** |
-| XGBoost | 0.832 | 0.625 |
+| Model | ROC-AUC | PR-AUC | Accuracy | Precision | Recall | F1 | Lift@Top 10% |
+|-----|--------:|-------:|---------:|----------:|-------:|---:|-------------:|
+| Logistic Regression | **0.847** | 0.654 | 0.744 | 0.512 | **0.807** | **0.627** | **2.85** |
+| XGBoost | 0.846 | **0.654** | **0.804** | **0.658** | 0.545 | 0.596 | 2.83 |
 
 **Key insight:**  
-The engineered feature space is largely linearly separable, allowing a simpler linear model to outperform a more complex ensemble while remaining explainable.
+- The engineered feature space is largely linearly separable, allowing a simpler linear model to outperform a more complex ensemble while remaining explainable.
+- Logistic Regression was selected as the primary model because it achieved the strongest recall and lift among the top 10% highest-risk customers, making it more useful for proactive churn prevention.
 
 ---
 
