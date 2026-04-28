@@ -1,8 +1,23 @@
+# Virtual environment
 .venv/
-__pycache__/
-.ipynb_checkpoints/
-results/
 
-# Optional: ignore heavy processed outputs
-# data/processed/
-data/processed/text_model.joblib
+# Python cache
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# Raw/private data
+data/raw/
+!data/raw/.gitkeep
+
+# Large generated artifacts
+data/processed/*.joblib
+data/processed/*.npy
+data/processed/*.pkl
+data/processed/*.parquet
+
+# Keep processed folder structure
+!data/processed/.gitkeep
+
+# Outputs
+results/
