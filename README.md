@@ -31,6 +31,22 @@ The focus is not only predictive performance, but **model transparency and usabi
 | Visualization | Matplotlib, Streamlit charts |
 | Model Persistence | joblib |
 
+## System Architecture
+
+```mermaid
+flowchart LR
+    A[Raw Customer Data] --> B[Structured Preprocessing]
+    C[Synthetic Support Notes] --> D[Sentence-BERT Text Embeddings]
+    B --> E[Combined Feature Matrix]
+    D --> E
+    E --> F[Logistic Regression / XGBoost]
+    F --> G[Churn Probability]
+    F --> H[SHAP Explanations]
+    G --> I[Streamlit Dashboard]
+    H --> I
+    J[SQL Analysis] --> K[Customer Segmentation + Revenue at Risk]
+```
+
 ## Project Structure
 
 ```text
@@ -65,7 +81,11 @@ multimodal-risk-detection/
 │   └── customer_segmentation.sql
 │
 ├── src/
-├── requirements.txt
+    ├── requirements.txt
+    ├── generate_support_notes.py
+    ├── make_features.py
+    ├── train_model.py
+    └── evaluate_model.py
 └── README.md
 ```
 ## 📊 Dataset
