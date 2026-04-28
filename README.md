@@ -1,6 +1,6 @@
 # Multimodal Churn Risk Detection
 
-An end-to-end, explainable machine learning system that predicts customer churn by combining structured customer data with unstructured text features, deployed as an interactive Streamlit application with SHAP-based explanations.
+An end-to-end churn intelligence system that combines structured customer data, synthetic support-note text, machine learning, SQL analysis, SHAP explainability, and a Streamlit application to identify high-risk customers and support retention decision-making.
 
 ---
 
@@ -18,6 +18,56 @@ The focus is not only predictive performance, but **model transparency and usabi
 
 ---
 
+## Tech Stack
+
+| Category | Tools |
+|---|---|
+| Programming | Python, SQL |
+| Data Analysis | pandas, NumPy |
+| Machine Learning | scikit-learn, XGBoost |
+| NLP | Sentence-BERT, `all-MiniLM-L6-v2` |
+| Explainability | SHAP |
+| Deployment | Streamlit |
+| Visualization | Matplotlib, Streamlit charts |
+| Model Persistence | joblib |
+
+## Project Structure
+
+```text
+multimodal-risk-detection/
+│
+├── app/
+│   └── streamlit_app.py
+│
+├── data/
+│   ├── raw/
+│   ├── processed/
+│   └── sample/
+│
+├── models/
+│   ├── model_logreg.joblib
+│   └── model_xgb.joblib
+│
+├── notebooks/
+│   ├── 01_eda.ipynb
+│   ├── 02_text_embeddings.ipynb
+│   ├── 03_modeling.ipynb
+│   └── 04_explainability.ipynb
+│
+├── reports/
+│   ├── figures/
+│   └── business_summary.md
+│
+├── sql/
+│   ├── churn_by_contract.sql
+│   ├── churn_by_payment_method.sql
+│   ├── revenue_at_risk.sql
+│   └── customer_segmentation.sql
+│
+├── src/
+├── requirements.txt
+└── README.md
+```
 ## 📊 Dataset
 
 - **IBM Telco Customer Churn Dataset** (Kaggle) https://www.kaggle.com/datasets/blastchar/telco-customer-churn/data
@@ -65,6 +115,26 @@ Chosen for strong performance in high-dimensional feature space and superior int
 - View churn probabilities and SHAP explanations in real time
 
 ---
+
+## SQL Analysis
+
+To support business-facing churn analysis, this project includes SQL queries for customer segmentation and revenue-at-risk analysis.
+
+The SQL layer answers questions such as:
+
+- Which contract types have the highest churn rates?
+- Which payment methods are associated with higher churn?
+- How much monthly revenue is tied to churned customers?
+- Which tenure and contract combinations represent the highest-risk customer segments?
+
+SQL files are located in the `sql/` directory.
+
+| SQL File | Purpose |
+|---|---|
+| `churn_by_contract.sql` | Compares churn rates across contract types |
+| `churn_by_payment_method.sql` | Identifies payment methods associated with higher churn |
+| `revenue_at_risk.sql` | Estimates monthly revenue tied to churned customers |
+| `customer_segmentation.sql` | Segments customers by tenure and contract risk |
 
 ## 📈 Results
 
@@ -160,7 +230,9 @@ This enables actionable insights rather than black-box predictions.
 
 ### Run locally:
 ```bash
-spython -m venv .venv
+git clone https://github.com/efazHossain/multimodal-risk-detection.git
+cd multimodal-risk-detection
+python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 streamlit run app/streamlit_app.py
@@ -188,11 +260,10 @@ Potential use cases:
 | Electronic check | Billing/payment friction | Promote autopay alternatives |
 ---
 
-## Future Plans
+## Future Improvements
 ### Business-Aware Threshold Selection
 
 While ROC-AUC and PR-AUC evaluate ranking performance, real-world churn interventions require selecting an operating threshold that balances business costs.
-
 In a churn context:
 - False negatives (missed churners) result in lost customers and revenue
 - False positives (unnecessary interventions) incur retention costs
@@ -201,5 +272,11 @@ Rather than defaulting to a 0.5 cutoff, thresholds can be tuned to:
 - Maximize expected profit
 - Minimize customer loss under a fixed retention budget
 - Prioritize recall for high-value customers
+
+Additional planned improvements:
+- Add lift and gain charts to evaluate how well the model prioritizes the highest-risk customers.
+- Add a revenue-at-risk dashboard that estimates potential monthly revenue loss from likely churners.
+- Add automated data validation checks before batch scoring.
+---
 
 This model is designed to support flexible thresholding depending on business objectives, enabling data-driven retention strategies rather than static classification rules.
