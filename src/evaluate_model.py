@@ -7,6 +7,9 @@ Outputs:
 - reports/figures/confusion_matrix_logreg.png
 - reports/figures/roc_curve_logreg.png
 - reports/figures/pr_curve_logreg.png
+- reports/figures/lift_curve_logreg.png
+- reports/figures/gain_curve_logreg.png
+- reports/logreg_lift_gain_table.csv
 """
 
 from __future__ import annotations
@@ -98,6 +101,88 @@ def evaluate_model(model_name: str, model_path: Path, X_test: np.ndarray, y_test
     return {key: float(value) if key != "model" else value for key, value in metrics.items()}
 
 
+def build_lift_gain_table(y_true: np.ndarray, y_prob: np.ndarray, n_bins: int = 10) -> pd.DataFrame:
+    """
+    Build decile-level cumulative gain and lift metrics.
+    """
+    ranked = pd.DataFrame({"y_true": y_true, "y_prob": y_prob}).sort_values(
+        "y_prob",
+        ascending=False,
+    ).reset_index(drop=True)
+    ranked["bucket"] = pd.qcut(
+        ranked.index + 1,
+        q=n_bins,
+        labels=False,
+        duplicates="drop",
+    ) + 1
+
+    total_positives = max(1, int(ranked["y_true"].sum()))
+    baseline_rate = ranked["y_true"].mean()
+
+    rows = []
+    cumulative_positives = 0
+    for bucket, group in ranked.groupby("bucket", sort=True):
+        bucket_size = len(group)
+        positives = int(group["y_true"].sum())
+        cumulative_positives += positives
+        population_fraction = group.index.max() + 1
+        population_fraction /= len(ranked)
+        gain = cumulative_positives / total_positives
+        response_rate = group["y_true"].mean() if bucket_size else 0.0
+        lift = (response_rate / baseline_rate) if baseline_rate > 0 else 0.0
+
+        rows.append(
+            {
+                "decile": int(bucket),
+                "customers_in_bin": bucket_size,
+                "positives_in_bin": positives,
+                "response_rate": float(response_rate),
+                "cumulative_positives": cumulative_positives,
+                "cumulative_gain": float(gain),
+                "lift": float(lift),
+                "population_fraction": float(population_fraction),
+            }
+        )
+
+    return pd.DataFrame(rows)
+
+
+def save_lift_gain_plots(y_test: np.ndarray, y_prob: np.ndarray) -> None:
+    """
+    Save lift and cumulative gain charts for the Logistic Regression model.
+    """
+    lift_gain_df = build_lift_gain_table(y_test, y_prob, n_bins=10)
+    lift_gain_df.to_csv(REPORTS_DIR / "logreg_lift_gain_table.csv", index=False)
+
+    gain_plot_df = pd.concat(
+        [
+            pd.DataFrame({"population_fraction": [0.0], "cumulative_gain": [0.0]}),
+            lift_gain_df[["population_fraction", "cumulative_gain"]],
+        ],
+        ignore_index=True,
+    )
+    plt.figure()
+    plt.plot(gain_plot_df["population_fraction"], gain_plot_df["cumulative_gain"], marker="o")
+    plt.plot([0, 1], [0, 1], linestyle="--")
+    plt.title("Cumulative Gains Curve - Logistic Regression")
+    plt.xlabel("Population Fraction Contacted")
+    plt.ylabel("Fraction of Churners Captured")
+    plt.tight_layout()
+    plt.savefig(FIGURES_DIR / "gain_curve_logreg.png", dpi=300)
+    plt.close()
+
+    plt.figure()
+    plt.plot(lift_gain_df["decile"], lift_gain_df["lift"], marker="o")
+    plt.axhline(1.0, linestyle="--")
+    plt.title("Lift Curve - Logistic Regression")
+    plt.xlabel("Decile (Highest Risk to Lowest Risk)")
+    plt.ylabel("Lift vs Average Churn Rate")
+    plt.xticks(lift_gain_df["decile"])
+    plt.tight_layout()
+    plt.savefig(FIGURES_DIR / "lift_curve_logreg.png", dpi=300)
+    plt.close()
+
+
 def save_logreg_plots(X_test: np.ndarray, y_test: np.ndarray) -> None:
     """
     Save standard evaluation plots for the Logistic Regression model.
@@ -134,6 +219,8 @@ def save_logreg_plots(X_test: np.ndarray, y_test: np.ndarray) -> None:
     plt.tight_layout()
     plt.savefig(FIGURES_DIR / "pr_curve_logreg.png", dpi=300)
     plt.close()
+
+    save_lift_gain_plots(y_test, y_prob)
 
 
 def main() -> None:
